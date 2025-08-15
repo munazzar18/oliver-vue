@@ -1,18 +1,14 @@
 <template>
-  <button
-    :type="type"
-    :disabled="disabled"
-    @click="handleClick"
+  <button :type="type" :disabled="disabled" @click="handleClick"
     class="inline-flex items-center justify-center px-4 py-2 border text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-    :class="buttonClasses"
-  >
+    :class="buttonClasses">
     <slot />
   </button>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { UIButtonProps, UIButtonEmits, ButtonVariant, ButtonSize } from '@/types'
+import type { UIButtonProps, UIButtonEmits, ButtonVariant, ButtonSize } from '../../../types'
 
 const props = withDefaults(defineProps<UIButtonProps>(), {
   variant: 'primary',

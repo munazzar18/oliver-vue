@@ -55,6 +55,9 @@ type ComponentConfig = {
   additionalConfig?: {
     label?: ConfigItem
     description?: ConfigItem
+    link?: ConfigItem;
+    checkboxInput?: ConfigItem;
+    checkboxLabel?: ConfigItem;
   }
 }
 

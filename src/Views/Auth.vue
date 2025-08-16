@@ -20,6 +20,18 @@
           <InputAuthComponent v-model="password" type="password" addId="auth-password" name="auth-password"
             placeholder="Password" required labelText="Password" />
 
+          <InputAuthComponent v-model="rememberMe" type="checkbox" addId="remember-me" name="remember-me"
+            labelText="Remember Me" />
+
+
+          <InputAuthComponent type="radio" addId="auth-radio" name="radio-admin" labelText="Select Role" :radioOptions="[
+            { label: 'Admin', value: 'admin' },
+            { label: 'User', value: 'user' },
+            { label: 'Guest', value: 'guest' }
+          ]" />
+
+
+
           <!-- <div>
             <InputComponentAuth
               v-model=" email" placeholder="Enter your email" show-label label-text="Email Address" required
@@ -34,14 +46,6 @@
               description="Your password must meet security requirements" />
           </div> -->
 
-          <!-- Forgot Password -->
-          <InputAuthExtraComponent type="forget-password" link="/forgot-password" forgotText="Forgot password ?" />
-
-          <!-- Remember Me -->
-          <InputAuthExtraComponent type="remember-me" checkboxLabel="Remember Me" checkboxId="remember-me"
-            checkboxName="remember-me" />
-
-
 
 
           <!-- Remember Me & Forgot Password -->
@@ -50,7 +54,7 @@
               <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
               <span class="ml-2 text-sm text-white">Remember me</span>
             </label> -->
-            <!-- <a href="#" class="text-sm text-blue-400 hover:text-blue-300">Forgot password?</a> -->
+            <a href="#" class="text-sm text-blue-400 hover:text-blue-300">Forgot password?</a>
           </div>
 
           <!-- Submit Button -->
@@ -90,6 +94,7 @@ import { EnvelopeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline'
 // Reactive data
 const email = ref('')
 const password = ref('')
+const rememberMe = ref(false)
 
 // Form submission handler
 const handleSubmit = () => {

@@ -10,50 +10,29 @@
       <!-- Auth Form -->
       <div class="bg-white/10 backdrop-blur-sm rounded-lg p-8 border border-white/20">
         <form @submit.prevent="handleSubmit" class="space-y-6">
-          <!-- Email Input -->
-          <!-- <InputComponentEmailAuth v-model="email" :showRequired="true" labelText="Email" placeholder="Email" /> -->
+
 
           <!-- Email input -->
-          <InputAuthComponent v-model="email" type="email" addId="auth-email" name="auth-email" placeholder="Email"
-            required labelText="Email" />
 
-          <InputAuthComponent v-model="password" type="password" addId="auth-password" name="auth-password"
-            placeholder="Password" required labelText="Password" />
-
-          <InputAuthComponent v-model="rememberMe" type="checkbox" addId="remember-me" name="remember-me"
-            labelText="Remember Me" />
-
-
-          <InputAuthComponent type="radio" addId="auth-radio" name="radio-admin" labelText="Select Role" :radioOptions="[
-            { label: 'Admin', value: 'admin' },
-            { label: 'User', value: 'user' },
-            { label: 'Guest', value: 'guest' }
-          ]" />
-
-
-
-          <!-- <div>
-            <InputComponentAuth
-              v-model=" email" placeholder="Enter your email" show-label label-text="Email Address" required
-            required-display="italic-text" :left-icon="EnvelopeIcon"
-            description="We'll never share your email with anyone else" />
-      </div> -->
+          <div>
+            <InputComponentAuth v-model="email" placeholder="Enter your email" show-label label-text="Email Address"
+              required required-display="italic-text" :left-icon="EnvelopeIcon"
+              description="We'll never share your email with anyone else" />
+          </div>
 
           <!-- Password Input -->
-          <!-- <div>
+          <div>
             <InputComponentAuth v-model="password" placeholder="Password" show-label label-text="Password" required
               required-display="italic-text" :right-icon="EyeSlashIcon" type="password"
               description="Your password must meet security requirements" />
-          </div> -->
-
-
+          </div>
 
           <!-- Remember Me & Forgot Password -->
           <div class="flex items-center justify-between">
-            <!-- <label class="flex items-center">
+            <label class="flex items-center">
               <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
               <span class="ml-2 text-sm text-white">Remember me</span>
-            </label> -->
+            </label>
             <a href="#" class="text-sm text-blue-400 hover:text-blue-300">Forgot password?</a>
           </div>
 
@@ -87,8 +66,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import InputAuthComponent from './Components/input/InputAuthComponent.vue'
-import InputAuthExtraComponent from './Components/input/InputAuthExtraComponent.vue'
+import InputComponentAuth from '../Views/Components/input/InputComponentAuth.vue'
 import { EnvelopeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline'
 
 // Reactive data

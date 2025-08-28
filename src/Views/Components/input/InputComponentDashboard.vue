@@ -1,61 +1,79 @@
 <template>
   <div v-bind="resolvedAttrs.wrapperAttrs.wrapper1">
-    <div v-bind="resolvedAttrs.wrapperAttrs.wrapper2">
-      <div v-bind="resolvedAttrs.wrapperAttrs.wrapper3" class="relative w-full">
-        <label
-          v-if="showLabel"
-          v-bind="resolvedAttrs.labelAttrs"
-          class="block text-sm font-medium text-gray-700 mb-1">
-          {{ labelText }}
-          <span v-if="requiredDisplay === '*'" class="text-red-500">*</span>
-          <span
-            v-else-if="requiredDisplay === 'italic-text'"
-            class="italic text-xs text-gray-500">
-            Required
-          </span>
-        </label>
 
-        <!-- Left icon -->
-        <component
-          v-if="leftIcon"
-          :is="leftIcon"
-          class="absolute left-2 top-[45px] transform -translate-y-1/2 pointer-events-none w-5 h-5 text-gray-400" />
 
-        <!-- Input -->
-        <div
-          class="flex items-center px-3 py-2.5 h-10 border-b rounded shadow bg-white/50">
-          <input
-            v-bind="resolvedAttrs.inputAttrs"
-            class="flex-1 text-base font-normal text-[#101828] focus:outline-none ring-0 bg-transparent border-none focus:ring-0 focus:ring-offset-0 focus:border-none placeholder-[#757575] placeholder:text-base placeholder:leading-6 placeholder:font-normal border"
-            :id="addId || resolvedAttrs.inputAttrs.id"
-            :value="modelValue"
-            @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-            :class="[
-               leftIcon ? 'pl-10' : 'pl-3',
-               rightIcon ? 'pr-10' : 'pr-3'
-             ]" />
-        </div>
+    <label v-if="showLabel" v-bind="resolvedAttrs.labelAttrs">
+      {{ labelText }}
+      <span v-if="requiredDisplay === '*'" class="text-red-500">*</span>
+      <span v-else-if="requiredDisplay === 'italic-text'" class="italic text-xs text-gray-500">
+        Required
+      </span>
+    </label>
 
-        <!-- Right icon -->
-        <component
-          v-if="rightIcon"
-          :is="rightIcon"
-          class="absolute right-2 top-[45px] transform -translate-y-1/2 pointer-events-none w-5 h-5 text-gray-400" />
+    <p class="text-base opacity-70 text-dash-gray-900 dark:text-dark-dash-text" v-if="optionalLabel">
+      {{ optionalLabelText }}
+    </p>
 
-        <!-- Description -->
-        <p
-          v-if="description"
-          v-bind="resolvedAttrs.descriptionAttrs"
-          class="mt-1 text-sm text-gray-500">
-          {{ description }}
-        </p>
-      </div>
+
+
+
+    <!-- Input -->
+    <div class="flex items-center px-3 py-2.5 h-10 border-b rounded shadow bg-white/50"
+      v-bind="resolvedAttrs.wrapperAttrs.wrapper3">
+      <!-- Left icon -->
+      <component v-if="leftIcon" :is="leftIcon" class=" w-5 h-5 " />
+      <input v-bind="resolvedAttrs.inputAttrs" :id="addId || resolvedAttrs.inputAttrs.id" :value="modelValue"
+        @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)" :class="[
+          leftIcon ? 'pl-10' : 'pl-3',
+          rightIcon ? 'pr-10' : 'pr-3'
+        ]" />
+      <!-- Right icon -->
+      <component v-if="rightIcon" :is="rightIcon" class=" w-5 h-5 " />
     </div>
+
+
+
+    <!-- Description -->
+    <p v-if="description" v-bind="resolvedAttrs.descriptionAttrs">
+      {{ description }}
+    </p>
+
+
+    <!-- required-error-text -->
+    <span v-if="requiredDisplay === 'required-text-error'"
+      class="inline-flex items-center text-xs leading-loose text-dash-warning dark:text-dark-dash-warning">This
+      field is required.</span>
+
+    <!-- error-fields-container -->
+    <div class="flex flex-col items-start self-stretch gap-1 px-2 pt-1 pb-2" v-if="showErrors">
+      <ul class="flex flex-col gap-1">
+        <li v-for="(errorObj, index) in errors" :key="index"
+          class="flex w-full gap-[.4375rem] text-dash-warning dark:text-dark-dash-warning">
+          <component v-if="errorObj.icon" :is="errorObj.icon"
+            class="block w-[1.125rem] h-[1.125rem] md:w-[1.25rem] md:h-[1.25rem] text-dash-successLight dark:text-dark-dash-successLight" />
+          <span class="text-sm text-dash-warning dark:text-dark-dash-warning">{{ errorObj.error }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- success-fields-container -->
+    <div class="flex flex-col items-start self-stretch gap-1 px-2 pt-1 pb-2" v-if="onSuccess">
+      <ul class="flex flex-col gap-1">
+        <li v-for="(successObj, index) in success" :key="index"
+          class="flex w-full gap-[.4375rem] text-dash-success dark:text-dark-dash-success">
+          <component v-if="successObj.icon" :is="successObj.icon"
+            class="block w-[1.125rem] h-[1.125rem] md:w-[1.25rem] md:h-[1.25rem] text-dash-successLight dark:text-dark-dash-successLight" />
+          <span class="text-sm text-dash-success dark:text-dark-dash-success">{{ successObj.message }}</span>
+        </li>
+      </ul>
+    </div>
+
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, type Component } from 'vue'
 import { resolveAllConfigs } from '@/utils/componentRenderingUtils'
 
 const props = defineProps({
@@ -81,6 +99,23 @@ const props = defineProps({
   labelText: { type: String, default: 'Label' },
   requiredDisplay: { type: String, default: '' }, // "*" or "italic-text"
 
+  optionalLabel: { type: Boolean, default: '' },
+  optionalLabelText: { type: String, default: '' },
+
+  showErrors: Boolean,
+  errors: {
+    type: Array as () => { error: string; icon: String | Object | Function | Component }[],
+    required: false,
+    default: () => []
+  },
+
+  onSuccess: Boolean,
+  success: {
+    type: Array as () => { message: string; icon: String | Object | Function | Component }[],
+    required: false,
+    default: () => []
+  },
+
   // Description
   description: String,
 
@@ -97,7 +132,7 @@ const inputConfig = {
   wrappers: [
     {
       targetAttribute: 'wrapper1',
-      addClass: 'mb-4',
+      addClass: 'flex flex-col',
       addAttributes: { 'data-wrapper': 'wrapper1' }
     },
     {
@@ -107,25 +142,25 @@ const inputConfig = {
     },
     {
       targetAttribute: 'wrapper3',
-      addClass: 'relative',
+      addClass: 'flex items-center px-3 py-2 h-10 border-b border-dash-gray-300 dark:border-dark-dash-border rounded-dash-input shadow-dash-input dark:shadow-dark-dash-input bg-white/50 dark:bg-dark-dash-bg-light gap-2',
       addAttributes: { 'data-wrapper': 'wrapper3' }
     }
   ],
   elm: {
-    addClass: 'text-gray-900 border-gray-300',
+    addClass: 'flex-1 text-base font-normal text-dash-gray-900 dark:text-dark-dash-text bg-transparent border-none focus:outline-none placeholder-dash-gray-500 dark:placeholder-dark-dash-text placeholder:text-base placeholder:leading-6 placeholder:font-normal',
     addAttributes: {
       type: 'text'
     }
   },
   additionalConfig: {
     label: {
-      addClass: 'text-sm text-gray-700 font-semibold',
+      addClass: 'block text-sm font-medium text-dash-gray-900 dark:text-dark-dash-text',
       addAttributes: {
         for: 'input-id'
       }
     },
     description: {
-      addClass: 'text-sm text-gray-500',
+      addClass: 'text-sm text-dash-gray-600 dark:text-dark-dash-text',
       addAttributes: {
         'data-description': 'true'
       }

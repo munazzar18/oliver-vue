@@ -4,7 +4,8 @@
       <label v-if="showLabel" v-bind="resolvedAttrs.labelAttrs">
         {{ labelText }}
       </label>
-      <span v-if="requiredDisplay === '*'" class="text-red-500">*</span>
+      <span v-if="isOptional" class="text-xs italic text-slate-500 dark:text-dark-dash-text">Optional</span>
+      <span v-if="requiredDisplay === '*'" class="text-red-500 ">*</span>
       <span v-else-if="requiredDisplay === 'italic-text'"
         class="text-[0.625rem] leading-6 text-right italic text-text dark:text-text-dark">
         Required
@@ -13,15 +14,29 @@
     <div v-bind="resolvedAttrs.wrapperAttrs.wrapper3" class="relative" v-for="item in inputItems" :key="item.id">
 
       <component v-if="leftIcon && type !== 'checkbox' && type !== 'radio'" :is="leftIcon"
-        class="absolute left-2 top-[50px] transform -translate-y-1/2 pointer-events-none w-5 h-5 text-white" />
+        class="text-dash-text dark:text-dark-dash-text w-4 h-4" />
 
-      <input v-bind="resolvedAttrs.inputAttrs" :id="item.id" :type="type" :value="item.value"
+      <span :class="leftSpanClass" v-if="leftSpan" class="text-sm font-semibold text-text dark:text-dark-text">{{
+        leftSpanText }}</span>
+
+      <input v-bind="resolvedAttrs.inputAttrs" :id="item.id" :type="type" :value="item.value" v-if="type !== 'textarea'"
         :checked="type === 'checkbox' ? Boolean(modelValue) : modelValue === item.value" @input="$emit(
           'update:modelValue',
           type === 'checkbox'
             ? ($event.target as HTMLInputElement).checked
             : ($event.target as HTMLInputElement).value
         )" />
+
+      <div class="w-full" v-if="type === 'textarea' && !richTextEditor">
+        <textarea id="textarea" @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+          class="w-full text-sm border-none focus:outline-none bg-transparent text-text dark:text-dark-text placeholder-dash-text dark:placeholder-dark-dash-text min-h-[5.5rem]"
+          placeholder="Enter multiline text"></textarea>
+      </div>
+
+      <div class="text-text dark:text-dark-text" v-if="type === 'textarea' && richTextEditor">
+        <QuillEditor theme="snow" @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+          class="w-full text-sm border-none focus:outline-none bg-transparent text-text dark:text-dark-text placeholder-dash-text dark:placeholder-dark-dash-text min-h-[5.5rem]" />
+      </div>
 
       <label v-if="['radio', 'checkbox'].includes(type)" :for="item.id" v-bind="resolvedAttrs.labelAttrs">
         <span v-if="type === 'checkbox'"
@@ -39,13 +54,18 @@
         </span>
       </label>
 
-      <component v-if="rightIcon && type !== 'checkbox' && type !== 'radio'" :is="rightIcon"
-        class="absolute right-2 mr-1 top-[25px] transform -translate-y-1/2 pointer-events-none w-5 h-5 text-white" />
+      <span v-if="rightSpan" :class="rightSpanClass" class="text-sm text-text dark:text-dark-text whitespace-nowrap">{{
+        rightSpanText }}</span>
 
-      <p v-if="description" v-bind="resolvedAttrs.descriptionAttrs" class="mt-1 text-sm text-white/80">
-        {{ description }}
-      </p>
+
+      <component v-if="rightIcon && type !== 'checkbox' && type !== 'radio'" :is="rightIcon"
+        class="text-dash-text dark:text-dark-dash-text w-4 h-4 cursor-pointer" />
+
     </div>
+    <p v-if="description" v-bind="resolvedAttrs.descriptionAttrs"
+      class="text-xs text-slate-500 dark:text-dark-dash-text">
+      {{ description }}
+    </p>
 
   </div>
 </template>
@@ -53,6 +73,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { resolveAllConfigs } from '../../../utils/componentRenderingUtils'
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 const props = defineProps({
   modelValue: [String, Number, Boolean],
@@ -87,6 +109,9 @@ const props = defineProps({
   labelText: { type: String, default: 'Label' },
   requiredDisplay: { type: String, default: '' }, // "*" or "italic-text"
 
+  isOptional: { type: Boolean, default: false },
+  richTextEditor: { type: Boolean, default: false },
+
 
   description: String,
 
@@ -94,6 +119,13 @@ const props = defineProps({
   leftIcon: [String, Object, Function],
   rightIcon: [String, Object, Function],
 
+
+  rightSpan: { type: Boolean, default: false },
+  rightSpanText: { type: String, default: '' },
+  rightSpanClass: { type: String, default: '' },
+  leftSpan: { type: Boolean, default: false },
+  leftSpanText: { type: String, default: '' },
+  leftSpanClass: { type: String, default: '' },
 
   radioValue: String,
 
@@ -108,21 +140,23 @@ const inputConfig = {
       targetAttribute: 'wrapper1',
       addClass: props.type === 'checkbox' ? 'flex flex-col gap-1.5' :
         props.type === 'radio' ? 'flex flex-col gap-[0.375rem] flex-1 self-stretch' :
-          'flex flex-col gap-2',
+          'flex flex-col gap-1.5',
       addAttributes: { 'data-wrapper': 'wrapper1' }
     },
     {
       targetAttribute: 'wrapper2',
       addClass: props.type === 'checkbox' ? 'flex flex-col gap-4' :
-        props.type === 'radio' ? 'flex flex-col gap-2'
-          : 'flex justify-between items-center w-full',
+        props.type === 'radio' ? 'flex flex-col gap-2' :
+          props.isOptional ? 'flex justify-between items-center'
+            : 'flex gap-2',
       addAttributes: { 'data-wrapper': 'wrapper2' }
     },
     {
       targetAttribute: 'wrapper3',
       addClass: props.type === 'checkbox' ? 'flex items-start gap-2'
-        : props.type === 'radio' ? 'flex items-center gap-2 relative'
-          : 'rounded-[0.625rem] border border-border dark:border-border-dark bg-input dark:bg-input-dark min-h-10 gap-2.5 pt-3 pb-3 px-2.5 flex justify-center items-center self-stretch',
+        : props.type === 'radio' ? 'flex items-center gap-2 relative' :
+          props.richTextEditor ? 'border border-border dark:border-dark-border rounded-input bg-white dark:bg-dark-surface'
+            : 'flex items-center px-3.5 py-2.5 border border-border dark:border-dark-border rounded-input gap-2 focus-within:ring-3 focus-within:ring-primary/20 dark:focus-within:ring-dark-primary/20 bg-white dark:bg-dark-surface',
       addAttributes: { 'data-wrapper': 'wrapper3' }
     },
   ],
@@ -131,7 +165,7 @@ const inputConfig = {
       'w-4 min-w-4 h-4 cursor-pointer accent-primary dark:accent-dark-primary' :
       props.type === 'radio' ?
         'relative pl-8 cursor-pointer text-[0.938rem] font-medium leading-6 text-dash-gray-900 dark:text-dark-dash-text peer-checked:before:bg-dash-gray-900 dark:peer-checked:before:bg-dark-dash-text peer-checked:after:content-[""] peer-checked:after:w-[0.375rem] peer-checked:after:h-[0.375rem] peer-checked:after:bg-dash-success dark:peer-checked:after:bg-dark-dash-success peer-checked:after:rounded-full peer-checked:after:absolute peer-checked:after:left-[0.4375rem] peer-checked:after:top-1/2 peer-checked:after:-translate-y-1/2 before:content-[""] before:w-5 before:h-5 before:rounded-full before:border before:border-dash-gray-300 dark:before:border-dark-dash-border before:bg-white dark:before:bg-dark-surface before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:box-border' :
-        'w-full font-medium text-base text-text dark:text-text-dark bg-transparent outline-none leading-6 tracking-[0.01rem] placeholder:text-placeholder placeholder:font-light placeholder:text-base placeholder:leading-6 placeholder:tracking-[0.01rem] dark:placeholder:text-placeholder-dark' +
+        'flex-1 text-sm border-none focus:outline-none bg-transparent text-text dark:text-dark-text placeholder-dash-text dark:placeholder-dark-dash-text' +
         (props.leftIcon ? 'pl-10' : 'pl-3') + ' ' +
         (props.rightIcon ? 'pr-10' : 'pr-3'),
     addAttributes: {
@@ -144,13 +178,13 @@ const inputConfig = {
         'block text-sm font-medium text-text dark:text-dark-text' :
         props.type === 'radio' ?
           'block text-sm font-medium text-dash-gray-700 dark:text-dark-dash-text' :
-          'text-sm leading-6 tracking-[0.009rem] text-text dark:text-text-dark',
+          'block text-sm font-medium text-text dark:text-dark-text',
       addAttributes: {
         for: 'input-id'
       }
     },
     description: {
-      addClass: 'text-sm text-white/80',
+      addClass: 'text-xs text-slate-500 dark:text-dark-dash-text',
       addAttributes: {
         'data-description': 'true'
       }

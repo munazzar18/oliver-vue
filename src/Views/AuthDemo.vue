@@ -74,6 +74,7 @@
 </template>
 
 <script setup lang="ts">
+
 import { ref } from 'vue';
 import InputAuthComponent from './Components/input/InputAuthComponent.vue';
 import { EyeSlashIcon } from '@heroicons/vue/24/solid';

@@ -6,7 +6,7 @@
       {{ labelText }}
       <span v-if="requiredDisplay === '*'" class="text-red-500">*</span>
       <span v-else-if="requiredDisplay === 'italic-text'" class="italic text-xs text-gray-500">
-        Required
+        {{ requiredDisplayText }}
       </span>
     </label>
 
@@ -14,21 +14,35 @@
       {{ optionalLabelText }}
     </p>
 
-
-
-
     <!-- Input -->
-    <div class="flex items-center px-3 py-2.5 h-10 border-b rounded shadow bg-white/50"
-      v-bind="resolvedAttrs.wrapperAttrs.wrapper3">
+    <div v-bind="resolvedAttrs.wrapperAttrs.wrapper3">
       <!-- Left icon -->
       <component v-if="leftIcon" :is="leftIcon" class=" w-5 h-5 " />
+
+      <!-- left span -->
+      <span v-if="leftSpan" :class="leftSpanClass"
+        class="text-base font-bold text-dash-gray-700 dark:text-dark-dash-text whitespace-nowrap">{{
+          leftSpanText
+        }}</span>
+
       <input v-bind="resolvedAttrs.inputAttrs" :id="addId || resolvedAttrs.inputAttrs.id" :value="modelValue"
+        :type="type" v-if="type !== 'textarea'"
         @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)" :class="[
           leftIcon ? 'pl-10' : 'pl-3',
           rightIcon ? 'pr-10' : 'pr-3'
         ]" />
+
+      <textarea v-if="type === 'textarea'" v-bind="resolvedAttrs.inputAttrs" :rows='3'
+        @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"></textarea>
+
       <!-- Right icon -->
       <component v-if="rightIcon" :is="rightIcon" class=" w-5 h-5 " />
+
+      <!-- right span -->
+      <span v-if="rightSpan" :class="rightSpanClass"
+        class="text-base font-medium px-3 text-dash-gray-700 dark:text-dark-dash-text whitespace-nowrap">{{
+          rightSpanText
+        }}</span>
     </div>
 
 
@@ -89,6 +103,7 @@ const props = defineProps({
   removeAttributes: { type: Array as () => string[], default: () => [] },
 
   // Standard HTML input props
+  type: { type: String, default: 'text' },
   name: String,
   placeholder: String,
   required: Boolean,
@@ -98,6 +113,7 @@ const props = defineProps({
   showLabel: Boolean,
   labelText: { type: String, default: 'Label' },
   requiredDisplay: { type: String, default: '' }, // "*" or "italic-text"
+  requiredDisplayText: { type: String, default: '' },
 
   optionalLabel: { type: Boolean, default: '' },
   optionalLabelText: { type: String, default: '' },
@@ -123,6 +139,16 @@ const props = defineProps({
   leftIcon: [String, Object, Function],
   rightIcon: [String, Object, Function],
 
+  //spans
+  rightSpan: { type: Boolean, default: false },
+  rightSpanText: { type: String, default: '' },
+  rightSpanClass: { type: String, default: '' },
+  leftSpan: { type: Boolean, default: false },
+  leftSpanText: { type: String, default: '' },
+  leftSpanClass: { type: String, default: '' },
+
+  textAreaRows: { type: String, default: '3' },
+
   // Wrapper overrides
   wrapperOverrides: { type: Array as () => any[], default: () => [] }
 })
@@ -132,7 +158,7 @@ const inputConfig = {
   wrappers: [
     {
       targetAttribute: 'wrapper1',
-      addClass: 'flex flex-col',
+      addClass: props.type === 'textarea' ? 'flex flex-col gap-[0.375rem] flex-1 self-stretch' : 'flex flex-col',
       addAttributes: { 'data-wrapper': 'wrapper1' }
     },
     {
@@ -142,19 +168,21 @@ const inputConfig = {
     },
     {
       targetAttribute: 'wrapper3',
-      addClass: 'flex items-center px-3 py-2 h-10 border-b border-dash-gray-300 dark:border-dark-dash-border rounded-dash-input shadow-dash-input dark:shadow-dark-dash-input bg-white/50 dark:bg-dark-dash-bg-light gap-2',
+      addClass: props.type === 'textarea' ? 'w-full px-3.5 py-2.5 h-[5.5rem] border-b border-dash-gray-300 dark:border-dark-dash-border rounded-dash-input rounded-b-none shadow-dash-input dark:shadow-dark-dash-input bg-white/50 dark:bg-dark-dash-bg-light'
+        : 'flex items-center px-3 py-2 h-10 border-b border-dash-gray-300 dark:border-dark-dash-border rounded-dash-input shadow-dash-input dark:shadow-dark-dash-input bg-white/50 dark:bg-dark-dash-bg-light gap-2',
       addAttributes: { 'data-wrapper': 'wrapper3' }
     }
   ],
   elm: {
-    addClass: 'flex-1 text-base font-normal text-dash-gray-900 dark:text-dark-dash-text bg-transparent border-none focus:outline-none placeholder-dash-gray-500 dark:placeholder-dark-dash-text placeholder:text-base placeholder:leading-6 placeholder:font-normal',
+    addClass: props.type === 'textarea' ? 'w-full text-base font-normal text-dash-gray-900 dark:text-dark-dash-text bg-transparent border-none focus:outline-none placeholder-dash-gray-500 dark:placeholder-dark-dash-text placeholder:text-base placeholder:leading-6 placeholder:font-normal'
+      : 'flex-1 text-base font-normal text-dash-gray-900 dark:text-dark-dash-text bg-transparent border-none focus:outline-none placeholder-dash-gray-500 dark:placeholder-dark-dash-text placeholder:text-base placeholder:leading-6 placeholder:font-normal',
     addAttributes: {
-      type: 'text'
+      type: props.type === 'textarea' ? 'textarea' : 'text'
     }
   },
   additionalConfig: {
     label: {
-      addClass: 'block text-sm font-medium text-dash-gray-900 dark:text-dark-dash-text',
+      addClass: props.requiredDisplay === 'italic-text' ? 'flex items-center justify-between block text-sm font-medium text-dash-gray-900 dark:text-dark-dash-text italic' : 'block text-sm font-medium text-dash-gray-900 dark:text-dark-dash-text',
       addAttributes: {
         for: 'input-id'
       }

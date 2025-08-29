@@ -170,10 +170,53 @@
             <InputComponentDashbaord id="input_b" placeholder="Search with user id" show-label v-model="name"
               label-text="Co-performer (Optional)" :left-icon="MagnifyingGlassIcon" optionalLabel
               optionalLabelText=" If this media includes other performers, please tag them below." />
-
           </div>
-        </section>
 
+          <div class="w-3/4 mb-4">
+            <InputComponentDashbaord id="input_c" placeholder="Account number in local or IBAN format" show-label
+              v-model="name" label-text="Beneficiary Account" :right-icon="QuestionMarkCircleIcon" />
+          </div>
+
+          <div class="w-3/4 mb-4">
+            <InputComponentDashbaord id="input_d" placeholder="Enter country" show-label v-model="name"
+              label-text="Country" requiredDisplay="italic-text" requiredDisplayText="Optional" />
+          </div>
+
+          <div class="w-3/4 mb-4">
+            <InputComponentDashbaord id="input_e" type="number" show-label v-model="name" label-text="Merch Discount"
+              rightSpan rightSpanText="% off" />
+          </div>
+
+          <div class="w-3/4 mb-4">
+            <InputComponentDashbaord id="input_f" type="number" show-label v-model="name" label-text="Original Price"
+              rightSpan rightSpanText="Token/mo" leftSpan leftSpanText="USD$"
+              description="Price must be between USD$ 1 to 1000." />
+          </div>
+
+          <div class="w-3/4 mb-4">
+            <InputComponentDashbaord id="input_g" type="textarea" show-label v-model="name" textAreaRows="3"
+              label-text="Dashboard Textarea" placeholder="Thank you for your tip!" description="0/200 characters" />
+          </div>
+
+          <div class="w-3/4 mb-4">
+            <CheckboxGroup v-model="transferOptions" name="transfer-options" label="Checkbox Options"
+              :options="transferOptionsList" version="dashboard" />
+          </div>
+
+
+          <div class="w-3/4 mb-4">
+            <RadioGroup v-model="transferType" name="subscription" label="Subscription Tier"
+              :options="transferTypeOptions" version="dashboard" />
+          </div>
+
+
+          <div class="w-3/4 mb-4">
+            <CheckboxSwitch v-model="isChecked" label="Toggle Dark mode" version="dashboard" wrapper-label="Dark Mode"
+              showWrapperLabel />
+          </div>
+
+
+        </section>
       </section>
     </div>
   </div>
@@ -181,16 +224,48 @@
 
 <script setup lang="ts">
 import AuthDemo from './AuthDemo.vue'
-import Paragraph from './Components/Form/Paragraph.vue';
-import Heading from './Components/Form/Heading.vue';
+import Paragraph from './Components/Form/Paragraph.vue'; import Heading from './Components/Form/Heading.vue';
 import Button from './Components/UI/ButtonComponent.vue';
-import { PaperClipIcon, EnvelopeIcon, EyeIcon, InformationCircleIcon, CheckIcon, MagnifyingGlassIcon } from '@heroicons/vue/24/outline';
+import { PaperClipIcon, EnvelopeIcon, EyeIcon, InformationCircleIcon, CheckIcon, MagnifyingGlassIcon, QuestionMarkCircleIcon } from '@heroicons/vue/24/outline';
 import InputDefaultComponent from './Components/input/InputDefaultComponent.vue';
 import Input from './Components/Form/Input.vue';
 import InputComponentDashbaord from './Components/input/InputComponentDashboard.vue';
 import { ref } from 'vue';
+import CheckboxGroup from './Components/Form/CheckboxGroup.vue';
+import RadioGroup from './Components/Form/RadioGroup.vue';
+import CheckboxSwitch from './Components/Form/CheckboxSwitch.vue';
 
 const name = ref('')
+const checkBoxGroup = ref('')
+const isChecked = ref(false)
+
+const transferType = ref('subscription')
+const transferTypeOptions = [
+  { value: 'choice-a', label: 'Choice A' },
+  { value: 'choice-b', label: 'Choice B' },
+  { value: 'choice-c', label: 'Choice C' }
+]
+
+const transferOptions = ref<string[]>([])
+const transferOptionsList = [
+  {
+    value: 'free-plan',
+    label: 'Free Plan',
+    tags: [{ text: 'Published Tier', variant: 'blue' as const }],
+    version: "dashboard"
+  },
+  {
+    value: 'free-plan-draft',
+    label: 'Free Plan',
+    tags: [{ text: 'Draft', variant: 'gray' as const }],
+    version: "dashboard"
+  },
+  {
+    value: 'verified',
+    label: 'I have verified, preserved and currently hold all identification cards and documents required under Record Keeping Requirements, 18 U.S.C. 2257 and 28 C.F.R. 75, or applicable laws in any other jurisdictions, countries, and territories ("2257 documentation"), for all individuals appearing in the Content.',
+    version: "dashboard"
+  },
+]
 
 </script>
 

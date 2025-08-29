@@ -4,16 +4,9 @@
       {{ label }}
     </label>
     <div class="space-y-3">
-      <Checkbox
-        v-for="option in options"
-        :key="option.value"
-        :model-value="selectedValues.includes(option.value)"
-        :label="option.label"
-        :description="option.description"
-        :tags="option.tags"
-        :id="`${name}-${option.value}`"
-        @update:model-value="toggleOption(option.value)"
-      />
+      <Checkbox v-for="option in options" :key="option.value" :model-value="selectedValues.includes(option.value)"
+        :label="option.label" :description="option.description" :tags="option.tags" :version="option.version"
+        :id="`${name}-${option.value}`" @update:model-value="toggleOption(option.value)" />
     </div>
   </div>
 </template>
@@ -30,6 +23,8 @@ interface CheckboxOption {
     text: string
     variant?: 'blue' | 'gray'
   }>
+  version: string
+
 }
 
 const props = defineProps<{
@@ -37,6 +32,8 @@ const props = defineProps<{
   name: string
   label?: string
   options: CheckboxOption[]
+  version: string
+
 }>()
 
 const emit = defineEmits<{
@@ -51,4 +48,6 @@ const toggleOption = (value: string | number) => {
     : [...selectedValues.value, value]
   emit('update:modelValue', newValues)
 }
+
+
 </script>
